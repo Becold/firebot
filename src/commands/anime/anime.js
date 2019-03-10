@@ -4,6 +4,7 @@ const refactorDateWithTime = require('../../methods/refactorDateWithTime');
 const strUcFirst = require('../../methods/strUcFirst');
 const numberInEnglishUntilTen = require('../../methods/numberInEnglishUntilTen');
 const numberInEmojiUnicodeUntilTen = require('../../methods/numberInUnicodeEmojiUntilTen');
+
 function getAnimeInfos(anime) {
 	const infosFields = [];
 
@@ -76,9 +77,10 @@ function sendAnimeInfos(msg,anime) {
 				url: `${anime.attributes.posterImage != null ? anime.attributes.posterImage.original : ''}`,
 			},
 			fields: getAnimeInfos(anime),
-			description: `**Synopsis : **\n\n${anime.attributes.synopsis.split('[')[0].split('(Source')[0]}`,
+			description: `**Synopsis : **\n${anime.attributes.synopsis.split('[')[0].split('(Source')[0]}\n`,
 		},
 	});
+	
 }
 
 function getAnimesListInfos(animesList){
@@ -89,6 +91,10 @@ function getAnimesListInfos(animesList){
 			value: `${animesList[i].attributes.titles.en_jp} `,
 		});
 	}
+	animesFields.push({
+		name: '\nPlease react with the emoji corresponding to the anime you want to know more about',
+		value: `Example : React with emoji ${numberInEmojiUnicodeUntilTen(1)} to know more about '**${animesList[0].attributes.titles.en_jp}**'`,
+	})
 	return animesFields;
 }
 
@@ -100,13 +106,59 @@ function showListOfAnime(msg,animesList){
 		},
 	}).then(async postedMessage => {
 		try {
-			for(var i = 0; i < animesList.length; i++){
-				await postedMessage.react(numberInEmojiUnicodeUntilTen(i+1));
-			}
+			const filter = (reaction,user) => {
+				const emojiAccepted = [];
+				for(var i = 0; i < animesList.length; i++){
+					emojiAccepted.push(numberInEmojiUnicodeUntilTen(i+1));
+				}
+				return emojiAccepted.includes(reaction.emoji.name) && user.id === msg.author.id;
+			};
+			postedMessage.awaitReactions(filter, {max: 1, time: 60000, errors:['time'] })
+				.then(collected => {
+					const reaction = collected.first();
+		
+					switch(reaction.emoji.name){
+						case numberInEmojiUnicodeUntilTen(1) :
+							sendAnimeInfos(msg,animesList[0]);
+							break;
+						case numberInEmojiUnicodeUntilTen(2) :
+							sendAnimeInfos(msg,animesList[1]);
+							break;
+						case numberInEmojiUnicodeUntilTen(3) :
+							sendAnimeInfos(msg,animesList[2]);
+							break;
+						case numberInEmojiUnicodeUntilTen(4) :
+							sendAnimeInfos(msg,animesList[3]);
+							break;
+						case numberInEmojiUnicodeUntilTen(5) :
+							sendAnimeInfos(msg,animesList[4]);
+							break;
+						case numberInEmojiUnicodeUntilTen(6) :
+							sendAnimeInfos(msg,animesList[5]);
+							break;
+						case numberInEmojiUnicodeUntilTen(7) :
+							sendAnimeInfos(msg,animesList[6]);
+							break;
+						case numberInEmojiUnicodeUntilTen(8) :
+							sendAnimeInfos(msg,animesList[7]);
+							break;
+						case numberInEmojiUnicodeUntilTen(9) :
+							sendAnimeInfos(msg,animesList[8]);
+							break;
+						case numberInEmojiUnicodeUntilTen(10) :
+						sendAnimeInfos(msg,animesList[9]);
+						break;
+						default : msg.reply('unknown reaction');
+					}
+				}).catch(collected => {
+					console.error(collected);
+					msg.reply('you didn\'t react with an allowed reaction.')
+				});
 		} catch (error) {
 			console.error('One of the emojis failed to react.');
 		}
 	});
+	
 }
 
 exports.exec = (bot, msg, args) => {
@@ -114,11 +166,8 @@ exports.exec = (bot, msg, args) => {
 	Kitsu.findByAnimeName(args.join(' '))
 		.then(response => {
 			if(response.status == 200) {
-				console.log(response.data.data);
 				if(response.data.data.length > 0) {
-					console.log(response.data.data[0]);
 					showListOfAnime(msg,response.data.data);
-					//sendAnimeInfos(msg,response.data.data[0]);
 				}
 				else {
 					msg.channel.send('**No results found. Maybe retry with another name...**');
