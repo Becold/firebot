@@ -92,7 +92,7 @@ function getAnimesListInfos(animesList){
 		});
 	}
 	animesFields.push({
-		name: '\nPlease react with the emoji corresponding to the anime you want to know more about',
+		name: 'Please react with the emoji corresponding to the anime you want to know more about',
 		value: `Example : React with emoji ${numberInEmojiUnicodeUntilTen(1)} to know more about '**${animesList[0].attributes.titles.en_jp}**'`,
 	})
 	return animesFields;
@@ -152,7 +152,7 @@ function showListOfAnime(msg,animesList){
 					}
 				}).catch(collected => {
 					console.error(collected);
-					msg.reply('you didn\'t react with an allowed reaction.')
+					msg.reply('you didn\'t react with an allowed reaction in time. Please retry the command and react in time by following instructions.')
 				});
 		} catch (error) {
 			console.error('One of the emojis failed to react.');
