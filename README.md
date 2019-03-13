@@ -1,4 +1,7 @@
 # Firebot
+
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/f2527f32b10f417c8e6bb16b45aee279)](https://app.codacy.com/app/Becold/firebot?utm_source=github.com&utm_medium=referral&utm_content=Becold/firebot&utm_campaign=Badge_Grade_Dashboard)
+
 Firebot is a powerful and high-performance (kind of) Discord bot written with NodeJS.
 
 ## Additionnal Dependencies
